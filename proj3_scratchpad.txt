@@ -1,0 +1,53 @@
+OVERVIEW
+two SOL contracts & web client; basically building Uniswap
+creating own ERC20 token to trade over the exchange
+
+MY ERC20 TOKEN
+-to implement
+mint() - create new tokens, adjust total supply, send tokens to contract administrator (Modifier = isAdmin)
+disableMint() - prevent ever minting again (Modifier = isAdmin)
+
+EXCHANGE CONTRACT
+xy = k
+liquidity providers provide equal amount of currency A & B (equal defined by prevailing EX rate; adding liquidity increases k but keeps price x/y constant)
+liquidity providers can withdraw an amount of x & y equal to the portion of x & y tokens they're entiteld to, not the # of tokens they originally invested, b/c the amount of tokens in the pool will change [don't understand]
+-to implement
+priceToken - returns price per token (in ETH); use SafeMath
+priceETH - returns price of ETH (in tokens)
+addLiquidity() - add to pool if sender has enough ETH / tokens; the amount of ETH appears in msg.value; the contract transfers amount of tokens from sender address to contract that is equivalent to the ETH provided in msg.value; fail if insufficient tokens / ETH funds
+removeLiquidity (amountETH) - remove amountETH of ETH and corresponding tokens, according to current exchange rate
+removeAllLiquidity - remove max amount of liquidity sender allowed to remove
+swapTokensForETH - fail if (1) no sufficient tokens, or (2) txn removes all ETH from the pool
+swapETHForTokens - same as above
+**Swaps and removals should fail if either token_reserves or eth_reserves would go all the way to zero as a result of the swap. This is to avoid the case of the exchange rate being undefined.
+** To avoid this issue, it could be a good idea to update k during each swap such that the rounding errors do not accumulate. This update should happen after the assertion that checks whether your k is within an acceptable rounding error (at the end of each swap function).
+
+[Part 4] DEFENDING AGAINST SLIPPAGE
+allow users to set maximum % slupippage for their requested swap TX
+(1) allow traders to specify in a swap the max_exhange_rate [need to divide by 100 b/c it's an int]
+(2) allow liquidity providers to specify max/min exchange rate when they add or remove liquidity
+(3) update JS / web client such that it calls the exchange contract with appropriate values for max/min exchange rates [use getPoolState()]
+
+[Part 5] INCENTIVIZING LIQUIDITY PROVIDERS
+create a fee scheme where liquidity providers receive a small fee for every swap TX; these fees go into whole pool and awarded to providers when they withdraw (based on when they first committed their liquidity)
+(1) set the percent fee in the exchange contract
+(2) when a user swaps tokens for ETH, return to them only (1 - fee %)*ETH
+(3) distribute fees to providers based on their fractional share of liquidity pool at time stake took place
+(4) reinvest the fees into the pool *only when can do so without violating xy=k* [don't understand]
+**In your section 5 implementation, it is acceptable if there is a very slight lag in fee distribution, although this lag should be kept to a minimum. This means that it is OK if a new liquidity provider who joins after a fee has been collected, but before it has been reinvested, receives some of the fees from the most recent swap(s) prior to them joining the pool. It is also OK if someone leaving the pool does not receive their share of the fees from the most recent swap(s) prior to them leaving the pool. In other words, fee "distribution" does not have to happen prior to reinvestment, and can happen based on the state of the liquidity providers at the time of reinvestment, not at the time of fee collection. That said, fee reinvestment should happen as quickly as possible.
+
+WEB CLIENT
+may need to call approve from token_contract.sol
+
+NOTES
+make things resilient to attacks! liberally use require
+use SafeMath
+If you are having trouble transferring tokens to / from the contract, be sure to read up on the approve() function, and understand where to call it from. 
+Be sure to use parseInt() in the Javascript when appropriate! Since Solidity does not have floating point decimals, you cannot pass in a float to the contract.
+
+SECTION #5
+dont send LP's fees every swap; rather, when award goes to liquidity provider, increase the amount of liquidity they've provided to the total pool
+3 potential solutions
+1. [track amounts] keep track of total liquidity provided by each provider 
+2. [track %'s] keep track of %'s of each liquidity provider; adjust their % every time liquidity is added / removed from the pool
+3. [invent another token] represent one person's share in the fees

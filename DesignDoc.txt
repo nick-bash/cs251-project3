@@ -1,39 +1,37 @@
 // =================== CS251 DEX Project =================== // 
 //                      Design Document                      //
-//                          Names                            //
+//                      Nicholas Bashour                     //
 // ========================================================= //  
 
 1. Explain why adding and removing liquidity to your exchange does not change the exchange rate.
 
-
-# TODO: answer question 1 here
-
+Liquidity providers add and remove liquidity in amounts of both DragonToken and ETH that are equivalent,
+as measured by the current exchange price. Because liquidity providers can only add or remove liquidity
+in equivalent amounts, the exchange rate doesn't change.
 
 2. Explain your scheme for rewarding liquidity providers and justify the design decisions you made. How does it satisfy requirements (2)-(4) from Section 5?
 
-
-# TODO: answer question 2 here
-
+N/a. Didn't attempt.
 
 3. Describe at least one method you used to minimize your exchange contract's gas usage. Why was this method effective?
 
-
-# TODO: answer question 3 here
-
+Efficient data structures. I used a mapping from addresses to uints to represent each LP's shares, and 
+an array of addresses to reference the liquidity providers. I'm not sure that it would be possible to
+store the requisite data in a more efficient manner.
 
 4. Optional Feedback:
 4a. How much time did you spend on the assignment?
-
-# TODO: answer question 4(a) here
+I lost track. At least 13-14 hours.
 
 4b. What is one thing that would have been useful to know before starting the assignment?
-
-# TODO: answer question 4(b) here
+Several things about debugging Solidity / JS and basic Solidity. For example, handling BigNumbers
+errors between JS & Sol. Also I had no idea we needed to emit Transfer events from the token contract.
+These things took a lot of time to debug. 
 
 4c. If you could change one with about this assignment, what would you change?
-
-# TODO: answer question 4(c) here
+There are a handful of typos and errors in the spec / starter code. For example, unclear what
+exchange rate is supposed to be represented as the max / min in adding / removing liquidity (ETH or token?).
+Further, the function definition for adding / removing liquidity in JS didn't have a parameter for 
+min slippage.
 
 4d. Please feel free to include any other feedback you may have below.
-
-# TODO: answer question 4(d) here
